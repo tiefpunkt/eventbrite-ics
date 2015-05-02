@@ -539,3 +539,13 @@ AddCharset utf-8 .css .js .xml .json .rss .atom
 <Files eventbrite.ics>
 AddType application/x-httpd-php .ics
 </Files>
+
+<Files eventbrite-ics.ini>
+Order Allow,Deny
+Deny from all
+</Files>
+
+#<Files index.php>
+#Order Allow,Deny
+#Deny from all
+#</Files>

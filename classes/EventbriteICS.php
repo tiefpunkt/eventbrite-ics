@@ -38,7 +38,7 @@ class EventbriteICS {
         if ($this->config->getParam('after_period')){
             $after = $this->config->getParam('after_period');
         }
-        
+
         $this->setBeginDate(strtotime('-' . $before, strtotime("Now")));
         $this->setEndDate(strtotime('+' . $after, strtotime("Now")));
 
@@ -119,7 +119,7 @@ class EventbriteICS {
 #
 #
 
-    public function readEventbrite() {
+    public function readEventbrite($organizer = null) {
         if (LOGGING) {
             // Logging file handle
             $this->logFh = fopen('eventbrite-ics.log', 'w') or die("can't open file");
@@ -129,13 +129,17 @@ class EventbriteICS {
         }
 
 
-        // For more information about the features that are available through 
+        // For more information about the features that are available through
         // the Eventbrite API, see http://developer.eventbrite.com/doc/
         try {
             // This actually uses the __call method to fetch the data from the
             // web service (JSON) and decodes the value back into the array
             // of events ...
-            $this->events = $this->eventbrite_client->user_list_events();
+            if ($organizer == null) {
+                $this->events = $this->eventbrite_client->user_list_events();
+            } else {
+                $this->events = $this->eventbrite_client->organizer_list_events(array('id' => $organizer));
+            }
         } catch (Exception $e) {
             $this->writeLog("Problem with Eventbrite: " . $e);
             $this->events = false;
@@ -204,7 +208,7 @@ class EventbriteICS {
                     continue;
                 }
 
-                // Convert to time 
+                // Convert to time
                 $start_date = strtotime($event->event->start_date, $this->today);
 
                 //writeLog($begin_date . " < " . $start_date . " > " . $end_date);
@@ -238,8 +242,8 @@ class EventbriteICS {
                 $events .= "END:" . "VEVENT" . CRLF;
                 # debug - uncomment the following to dump and stop after one event ...
                 #print_r($event->event);
-                #if ($i++ > 3) 
-                //break;       
+                #if ($i++ > 3)
+                //break;
             } // End For loop
         } else {
             # The calendar must have 1 event
@@ -282,8 +286,8 @@ class EventbriteICS {
     }
 
     /**
-     *  Format the description and URL into a description 
-     * 
+     *  Format the description and URL into a description
+     *
      */
     private function getDescriptionText($description, $url) {
         $new_description = $description;
@@ -301,7 +305,7 @@ class EventbriteICS {
 
         $new_description = $description;
         $new_url = $this->formatURLHTML($url);
-        
+
         if ($new_url) {
             $new_description .= "<p>" . $new_url . "</p>";
         }
